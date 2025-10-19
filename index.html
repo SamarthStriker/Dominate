@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dominate - Peer-to-Peer Quiz</title>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+<body class="bg-gradient-to-r from-purple-500 to-pink-500 min-h-screen flex justify-center items-start py-6 px-4">
+
+<div class="w-full max-w-md bg-white p-6 sm:p-8 rounded-3xl shadow-2xl">
+
+  <h1 class="text-3xl sm:text-4xl font-extrabold text-center mb-6 text-purple-600 tracking-wide">Dominate</h1>
+
+  <!-- ASK QUESTION -->
+  <div id="askSection" class="mt-4 space-y-3 hidden">
+    <input type="text" id="userQuestion" placeholder="Ask a question" 
+           class="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400 transition"/>
+    <button id="askBtn" 
+            class="w-full bg-purple-600 text-white p-3 rounded-xl font-semibold hover:bg-purple-700 active:scale-95 transition">Ask Question</button>
+  </div>
+
+  <!-- QUIZ SECTION -->
+  <div id="quizSection" class="hidden mt-4 space-y-3">
+    <h2 class="text-xl sm:text-2xl font-bold text-center text-gray-800" id="currentQuestion">Waiting for question...</h2>
+    <p id="fastestUserDisplay" class="text-center text-gray-700 font-medium"></p>
+    <button id="answerBtn" 
+            class="bg-yellow-400 text-white p-3 rounded-xl w-full font-semibold hover:bg-yellow-500 active:scale-95 transition">I want to answer</button>
+
+    <!-- FASTEST CLICKER INPUT -->
+    <div id="answerInputSection" class="hidden space-y-2 mt-2">
+      <input type="text" id="userAnswer" placeholder="Type your answer" 
+             class="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400 transition"/>
+      <button id="submitAnswerBtn" 
+              class="bg-green-500 text-white p-3 rounded-xl w-full font-semibold hover:bg-green-600 active:scale-95 transition">Submit Answer</button>
+    </div>
+  </div>
+
+  <!-- JUDGING SECTION -->
+  <div id="judgeSection" class="hidden mt-4 space-y-2 p-4 border border-gray-300 rounded-xl bg-gray-50">
+    <h3 class="text-lg font-semibold text-gray-700">Decide if the answer is correct:</h3>
+    <p id="answerToJudge" class="mb-2 font-semibold text-gray-800"></p>
+    <div class="flex flex-col sm:flex-row gap-3">
+      <button id="markRight" class="bg-green-500 text-white p-3 rounded-xl flex-1 font-semibold hover:bg-green-600 active:scale-95 transition">Right</button>
+      <button id="markWrong" class="bg-red-500 text-white p-3 rounded-xl flex-1 font-semibold hover:bg-red-600 active:scale-95 transition">Wrong</button>
+    </div>
+  </div>
+
+  <!-- SCOREBOARD -->
+  <div id="scoreboardSection" class="mt-4 p-4 border border-gray-300 rounded-xl bg-gray-50">
+    <h3 class="text-lg sm:text-xl font-semibold text-purple-700 mb-2">Scoreboard</h3>
+    <ul id="scoreboardList" class="list-disc pl-5 text-gray-700"></ul>
+  </div>
+
+</div>
+
+
+
+<script>
+// ------------------ FIREBASE CONFIG ------------------
+const firebaseConfig = {
+  apiKey: "AIzaSyC62iBhaSeZsveTYwyGeR01LcEb-TzqlVI",
+  authDomain: "earnburn-8abfb.firebaseapp.com",
+  projectId: "earnburn-8abfb",
+  storageBucket: "earnburn-8abfb.firebasestorage.app",
+  messagingSenderId: "831063318223",
+  appId: "1:831063318223:web:be3aab9253cef04eb0e1ba",
+  measurementId: "G-C77DF9QBJZ"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+let currentUser = null;
+let currentQuestionDoc = null;
+let fastestUser = null;
+
+// ------------------ LOGIN CHECK ------------------
+auth.onAuthStateChanged(async (user)=>{
+  if(!user){
+    window.location.href = "login.html";
+    return;
+  }
+  currentUser = user;
+
+  // Ensure Firestore user doc exists
+  const userRef = db.collection("users").doc(currentUser.uid);
+  const doc = await userRef.get();
+  if(!doc.exists){
+    await userRef.set({ email: currentUser.email, score: 0 });
+  }
+
+  document.getElementById("askSection").classList.remove("hidden");
+
+  startQuestionListener();
+  displayScores();
+});
+
+// ------------------ ASK QUESTION ------------------
+document.getElementById("askBtn").addEventListener("click", async ()=>{
+  const questionText = document.getElementById("userQuestion").value.trim();
+  if(!questionText){ alert("Enter a question"); return; }
+
+  await db.collection("questions").add({
+    question: questionText,
+    askedBy: currentUser.uid,
+    answeredBy: null,
+    answerText: "",
+    fastestClickedBy: null,
+    status: "pending",
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+
+  document.getElementById("userQuestion").value = "";
+  document.getElementById("askSection").classList.add("hidden");
+});
+
+// ------------------ LISTEN FOR QUESTIONS ------------------
+function startQuestionListener(){
+  db.collection("questions").orderBy("createdAt").limit(1).onSnapshot(snapshot=>{
+    if(snapshot.empty){
+      // No active question → show ask section
+      document.getElementById("askSection").classList.remove("hidden");
+      document.getElementById("quizSection").classList.add("hidden");
+      document.getElementById("fastestUserDisplay").innerText = "";
+      return;
+    }
+
+    snapshot.forEach(async doc=>{
+      currentQuestionDoc = doc;
+      const data = doc.data();
+
+      document.getElementById("currentQuestion").innerText = data.question;
+      document.getElementById("quizSection").classList.remove("hidden");
+
+      // Hide ask section while question is active
+      document.getElementById("askSection").classList.add("hidden");
+
+      fastestUser = data.fastestClickedBy || null;
+
+      // Show judge section only for asker
+      if(data.status === "answered" && data.askedBy === currentUser.uid){
+        document.getElementById("answerToJudge").innerText = data.answerText;
+        document.getElementById("judgeSection").classList.remove("hidden");
+      } else {
+        document.getElementById("judgeSection").classList.add("hidden");
+      }
+
+      // Hide "I want to answer" if:
+      // - Current user is asker
+      // - Someone already clicked
+      const answerBtn = document.getElementById("answerBtn");
+      if(currentUser.uid === data.askedBy || fastestUser){
+        answerBtn.style.display = "none";
+      } else {
+        answerBtn.style.display = "block";
+      }
+
+      // Show fastest clicker email
+      if(fastestUser){
+        const userSnap = await db.collection("users").doc(fastestUser).get();
+        const email = userSnap.exists ? userSnap.data().email : "Someone";
+        document.getElementById("fastestUserDisplay").innerText = `Answering: ${email}`;
+      } else {
+        document.getElementById("fastestUserDisplay").innerText = "";
+      }
+
+      // Hide answer input for everyone except fastest clicker
+      if(fastestUser !== currentUser.uid){
+        document.getElementById("answerInputSection").classList.add("hidden");
+      }
+    });
+  });
+}
+
+// ------------------ FASTEST CLICKER ------------------
+document.getElementById("answerBtn").addEventListener("click", async ()=>{
+  if(currentQuestionDoc.data().askedBy === currentUser.uid){
+    alert("You cannot answer your own question!");
+    return;
+  }
+  if(currentQuestionDoc.data().fastestClickedBy){
+    alert("Someone already clicked!");
+    return;
+  }
+
+  fastestUser = currentUser.uid;
+
+  await db.collection("questions").doc(currentQuestionDoc.id).update({
+    fastestClickedBy: fastestUser
+  });
+
+  document.getElementById("answerInputSection").classList.remove("hidden");
+  document.getElementById("fastestUserDisplay").innerText = `Answering: ${currentUser.email}`;
+  document.getElementById("answerBtn").style.display = "none";
+});
+
+// ------------------ SUBMIT ANSWER ------------------
+document.getElementById("submitAnswerBtn").addEventListener("click", async ()=>{
+  const answerText = document.getElementById("userAnswer").value.trim();
+  if(!answerText){ alert("Enter your answer"); return; }
+
+  await db.collection("questions").doc(currentQuestionDoc.id).update({
+    answeredBy: currentUser.uid,
+    answerText,
+    status: "answered"
+  });
+
+  document.getElementById("answerInputSection").classList.add("hidden");
+});
+
+// ------------------ JUDGING ------------------
+document.getElementById("markRight").addEventListener("click", async ()=>{
+  const questionData = currentQuestionDoc.data();
+  if(questionData.answeredBy){
+    await db.collection("users").doc(questionData.answeredBy).update({
+      score: firebase.firestore.FieldValue.increment(10)
+    });
+  }
+  await db.collection("questions").doc(currentQuestionDoc.id).delete();
+  resetAfterJudging();
+});
+
+document.getElementById("markWrong").addEventListener("click", async ()=>{
+  const questionData = currentQuestionDoc.data();
+  if(questionData.answeredBy){
+    // Deduct points for wrong answer
+    await db.collection("users").doc(questionData.answeredBy).update({
+      score: firebase.firestore.FieldValue.increment(-10)
+    });
+  }
+  await db.collection("questions").doc(currentQuestionDoc.id).delete();
+  resetAfterJudging();
+});
+
+
+function resetAfterJudging(){
+  document.getElementById("judgeSection").classList.add("hidden");
+  document.getElementById("askSection").classList.remove("hidden");
+  document.getElementById("fastestUserDisplay").innerText = "";
+  document.getElementById("quizSection").classList.add("hidden");
+}
+
+// ------------------ SCOREBOARD ------------------
+async function displayScores(){
+  const usersSnap = await db.collection("users").get();
+  const list = document.getElementById("scoreboardList");
+  list.innerHTML = "";
+  usersSnap.forEach(doc=>{
+    const li = document.createElement("li");
+    li.innerText = `${doc.data().email} : ${doc.data().score || 0}`;
+    list.appendChild(li);
+  });
+}
+
+setInterval(displayScores, 5000); // live update
+</script>
+
+</body>
+</html>

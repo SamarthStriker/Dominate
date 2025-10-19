@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - Dominate</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+<body class="bg-gradient-to-r from-purple-500 to-pink-500 flex justify-center items-center min-h-screen">
+
+<div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md transform transition duration-500 hover:scale-105">
+  <h1 class="text-4xl font-extrabold text-center mb-6 text-purple-600 tracking-wider">Dominate</h1>
+  
+  <p class="text-center text-gray-500 mb-6">Login to unlock your full potential</p>
+  
+  <div class="mb-4">
+    <input type="email" id="email" placeholder="Email" 
+           class="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition" />
+  </div>
+  
+  <div class="mb-4">
+    <input type="password" id="password" placeholder="Password" 
+           class="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition" />
+  </div>
+  
+  <button id="loginBtn" 
+          class="w-full bg-purple-600 text-white p-3 rounded-xl font-semibold hover:bg-purple-700 active:scale-95 transition">Login</button>
+  
+  <p class="text-center text-gray-400 mt-4 text-sm">
+    Don't have an account? 
+    <a href="signup.html" class="text-purple-600 font-semibold hover:underline">Sign Up</a>
+  </p>
+</div>
+
+<script>
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyC62iBhaSeZsveTYwyGeR01LcEb-TzqlVI",
+  authDomain: "earnburn-8abfb.firebaseapp.com",
+  projectId: "earnburn-8abfb",
+  storageBucket: "earnburn-8abfb.firebasestorage.app",
+  messagingSenderId: "831063318223",
+  appId: "1:831063318223:web:be3aab9253cef04eb0e1ba",
+  measurementId: "G-C77DF9QBJZ"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+
+// Login
+document.getElementById("loginBtn").addEventListener("click", async ()=>{
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
+  if(!email || !password){ alert("Enter email & password"); return; }
+
+  try{
+    await auth.signInWithEmailAndPassword(email, password);
+    window.location.href = "index.html";
+  }catch(e){
+    alert(e.message);
+  }
+});
+</script>
+
+</body>
+</html>
