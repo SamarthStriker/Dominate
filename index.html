@@ -11,86 +11,204 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
-<body class="relative min-h-screen bg-gradient-to-tr from-purple-500 via-pink-500 to-red-500 flex justify-center items-start py-8 px-4 font-sans overflow-hidden">
+<body class="relative min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex justify-center items-start py-8 px-4 font-sans overflow-x-hidden">
 
-  <!-- Decorative floating circles -->
-  <div class="absolute top-0 left-0 w-72 h-72 bg-purple-300/40 rounded-full blur-3xl animate-pulse-slow"></div>
-  <div class="absolute bottom-0 right-0 w-96 h-96 bg-pink-300/30 rounded-full blur-3xl animate-pulse-slow"></div>
-  <div class="absolute top-1/2 left-1/4 w-60 h-60 bg-yellow-200/20 rounded-full blur-2xl animate-pulse-slow"></div>
+  <!-- Enhanced animated background -->
+  <div class="absolute inset-0 overflow-hidden">
+    <div class="absolute top-0 -left-20 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-float-slow"></div>
+    <div class="absolute bottom-0 -right-20 w-[500px] h-[500px] bg-pink-500/15 rounded-full blur-3xl animate-float-slower"></div>
+    <div class="absolute top-1/3 left-1/3 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-float-reverse"></div>
+    <div class="absolute bottom-1/4 right-1/4 w-64 h-64 bg-fuchsia-500/15 rounded-full blur-2xl animate-float-slow"></div>
+  </div>
+
+  <!-- Grid pattern overlay -->
+  <div class="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.02)_1px,transparent_1px)] bg-[size:100px_100px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,black,transparent)]"></div>
 
   <!-- Container -->
-  <div class="relative z-10 w-full max-w-6xl flex flex-col lg:flex-row gap-6">
+  <div class="relative z-10 w-full max-w-7xl flex flex-col lg:flex-row gap-6">
 
-    <!-- Quiz / Ask Section -->
-    <div class="flex-1 bg-white/90 backdrop-blur-md p-8 rounded-3xl shadow-2xl border border-white/30">
-      <h1 class="text-4xl font-extrabold text-center mb-6 text-gradient bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 tracking-wide drop-shadow-lg">Dominate</h1>
+    <!-- Main Quiz Section -->
+    <div class="flex-1 bg-white/5 backdrop-blur-xl p-8 rounded-3xl shadow-2xl border border-white/10 flex flex-col gap-6 hover:border-white/20 transition-all duration-300">
+      
+      <!-- Header with glow effect -->
+      <div class="relative">
+        <h1 class="text-5xl font-black text-center mb-2 bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent tracking-tight animate-gradient-x">
+          DOMINATE
+        </h1>
+        <p class="text-center text-white/60 text-sm font-medium tracking-widest">PEER-TO-PEER QUIZ ARENA</p>
+        <div class="absolute -inset-4 bg-gradient-to-r from-purple-600/20 to-pink-600/20 blur-2xl -z-10 opacity-60"></div>
+      </div>
 
-      <!-- ASK QUESTION -->
-      <div id="askSection" class="mt-4 space-y-3 hidden">
-        <input type="text" id="userQuestion" placeholder="Ask a question" 
-               class="w-full p-4 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-400 transition shadow-sm"/>
+      <!-- ASK QUESTION SECTION -->
+      <div id="askSection" class="mt-6 space-y-4 hidden">
+        <div class="relative group">
+          <input type="text" id="userQuestion" placeholder="Ask your question..." 
+                 class="w-full p-5 bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 text-white placeholder-white/50 group-hover:bg-white/15 shadow-lg"/>
+          <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity -z-10 blur-xl"></div>
+        </div>
         <button id="askBtn" 
-                class="w-full bg-purple-600 text-white p-4 rounded-2xl font-semibold hover:bg-purple-700 active:scale-95 shadow-lg transition">Ask Question</button>
+                class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white p-5 rounded-2xl font-bold hover:from-purple-500 hover:to-pink-500 active:scale-[0.98] shadow-2xl shadow-purple-500/50 transition-all duration-300 relative overflow-hidden group">
+          <span class="relative z-10 flex items-center justify-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Ask Question
+          </span>
+          <div class="absolute inset-0 bg-gradient-to-r from-pink-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        </button>
       </div>
 
       <!-- QUIZ SECTION -->
-      <div id="quizSection" class="hidden mt-4 space-y-3">
-        <h2 class="text-2xl font-bold text-center text-gray-800 p-4 bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl shadow-inner" id="currentQuestion">Waiting for question...</h2>
-        <p id="fastestUserDisplay" class="text-center text-gray-700 font-medium text-lg mt-2"></p>
-        <button id="answerBtn" 
-                class="bg-yellow-400 text-white p-4 rounded-2xl w-full font-semibold hover:bg-yellow-500 active:scale-95 shadow-lg transition">I want to answer</button>
+      <div id="quizSection" class="hidden mt-6 space-y-5">
+        <div class="relative p-6 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden group hover:border-white/30 transition-all duration-300">
+          <div class="absolute -inset-1 bg-gradient-to-r from-purple-600/20 to-pink-600/20 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500"></div>
+          <h2 class="text-2xl font-bold text-white text-center relative z-10 leading-relaxed" id="currentQuestion">Waiting for question...</h2>
+        </div>
+        
+        <div id="fastestUserDisplay" class="text-center">
+          <span class="inline-flex items-center gap-2 px-4 py-2 bg-yellow-500/20 border border-yellow-500/30 rounded-full text-yellow-300 font-semibold text-sm backdrop-blur-sm">
+            <span class="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></span>
+          </span>
+        </div>
 
-        <!-- FASTEST CLICKER INPUT -->
-        <div id="answerInputSection" class="hidden space-y-3 mt-3">
-          <input type="text" id="userAnswer" placeholder="Type your answer" 
-                 class="w-full p-4 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-green-400 shadow-sm transition"/>
+        <button id="answerBtn" 
+                class="bg-gradient-to-r from-yellow-500 to-orange-500 text-white p-5 rounded-2xl w-full font-bold hover:from-yellow-400 hover:to-orange-400 active:scale-[0.98] shadow-2xl shadow-yellow-500/40 transition-all duration-300 relative overflow-hidden group">
+          <span class="relative z-10 flex items-center justify-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+            I Want to Answer!
+          </span>
+          <div class="absolute inset-0 bg-gradient-to-r from-orange-500 to-yellow-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        </button>
+
+        <!-- ANSWER INPUT SECTION -->
+        <div id="answerInputSection" class="hidden space-y-4 animate-fade-in">
+          <div class="relative group">
+            <input type="text" id="userAnswer" placeholder="Type your answer here..." 
+                   class="w-full p-5 bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 text-white placeholder-white/50 group-hover:bg-white/15 shadow-lg"/>
+          </div>
           <button id="submitAnswerBtn" 
-                  class="bg-green-500 text-white p-4 rounded-2xl w-full font-semibold hover:bg-green-600 active:scale-95 shadow-lg transition">Submit Answer</button>
+                  class="bg-gradient-to-r from-green-600 to-emerald-600 text-white p-5 rounded-2xl w-full font-bold hover:from-green-500 hover:to-emerald-500 active:scale-[0.98] shadow-2xl shadow-green-500/40 transition-all duration-300 relative overflow-hidden group">
+            <span class="relative z-10 flex items-center justify-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              Submit Answer
+            </span>
+          </button>
         </div>
       </div>
 
       <!-- JUDGING SECTION -->
-      <div id="judgeSection" class="hidden mt-4 space-y-3 p-6 border border-gray-300 rounded-2xl bg-gray-50 shadow-inner">
-        <h3 class="text-lg font-semibold text-gray-700">Decide if the answer is correct:</h3>
-        <p id="answerToJudge" class="mb-3 font-semibold text-gray-800 p-3 bg-gray-100 rounded-xl"></p>
+      <div id="judgeSection" class="hidden mt-6 space-y-4 p-6 border border-white/20 rounded-2xl bg-white/5 backdrop-blur-sm shadow-xl animate-fade-in">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+          <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          Judge the Answer
+        </h3>
+        <p id="answerToJudge" class="font-semibold text-white p-4 bg-white/10 rounded-xl backdrop-blur-sm border border-white/10"></p>
         <div class="flex flex-col sm:flex-row gap-3">
-          <button id="markRight" class="bg-green-500 text-white p-3 rounded-2xl flex-1 font-semibold hover:bg-green-600 active:scale-95 shadow-md transition">Right</button>
-          <button id="markWrong" class="bg-red-500 text-white p-3 rounded-2xl flex-1 font-semibold hover:bg-red-600 active:scale-95 shadow-md transition">Wrong</button>
+          <button id="markRight" class="bg-gradient-to-r from-green-600 to-emerald-600 text-white p-4 rounded-xl flex-1 font-bold hover:from-green-500 hover:to-emerald-500 active:scale-[0.98] shadow-lg shadow-green-500/30 transition-all duration-300">
+            ✓ Correct
+          </button>
+          <button id="markWrong" class="bg-gradient-to-r from-red-600 to-rose-600 text-white p-4 rounded-xl flex-1 font-bold hover:from-red-500 hover:to-rose-500 active:scale-[0.98] shadow-lg shadow-red-500/30 transition-all duration-300">
+            ✗ Wrong
+          </button>
         </div>
       </div>
+
+      <!-- USER STATS -->
+      <div id="userStats" class="hidden mt-6 p-6 bg-white/5 backdrop-blur-sm rounded-2xl shadow-xl border border-white/10">
+        <h3 class="text-xl font-bold text-white mb-5 flex items-center gap-2">
+          <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+          </svg>
+          Your Stats
+        </h3>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="bg-white/5 p-4 rounded-xl border border-white/10 hover:bg-white/10 transition-all duration-300">
+            <div class="text-white/60 text-sm mb-1">Questions Asked</div>
+            <div class="text-3xl font-bold text-purple-400" id="askedCount">0</div>
+          </div>
+          <div class="bg-white/5 p-4 rounded-xl border border-white/10 hover:bg-white/10 transition-all duration-300">
+            <div class="text-white/60 text-sm mb-1">Correct Answers</div>
+            <div class="text-3xl font-bold text-green-400" id="correctCount">0</div>
+          </div>
+          <div class="bg-white/5 p-4 rounded-xl border border-white/10 hover:bg-white/10 transition-all duration-300">
+            <div class="text-white/60 text-sm mb-1">Fastest Correct</div>
+            <div class="text-3xl font-bold text-yellow-400" id="fastestCorrectCount">0</div>
+          </div>
+          <div class="bg-white/5 p-4 rounded-xl border border-white/10 hover:bg-white/10 transition-all duration-300">
+            <div class="text-white/60 text-sm mb-1">Wrong Answers</div>
+            <div class="text-3xl font-bold text-red-400" id="wrongCount">0</div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
-    <!-- Scoreboard Section -->
-    <div class="w-full lg:w-1/3 bg-white/90 backdrop-blur-md p-6 rounded-3xl shadow-2xl border border-white/30 flex flex-col">
-      <h3 class="text-xl font-semibold text-purple-700 mb-4 text-center">Leaderboard</h3>
-      <ul id="scoreboardList" class="flex flex-col gap-2 overflow-y-auto max-h-[500px]"></ul>
+    <!-- Enhanced Scoreboard Section -->
+    <div class="w-full lg:w-96 bg-white/5 backdrop-blur-xl p-6 rounded-3xl shadow-2xl border border-white/10 flex flex-col hover:border-white/20 transition-all duration-300">
+      <div class="flex items-center justify-center gap-3 mb-6">
+        <svg class="w-7 h-7 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+        </svg>
+        <h3 class="text-2xl font-black text-white tracking-tight">Leaderboard</h3>
+      </div>
+      <ul id="scoreboardList" class="flex flex-col gap-3 overflow-y-auto max-h-[600px] pr-2"></ul>
     </div>
 
   </div>
 
   <style>
-    @keyframes pulse-slow {
-      0%, 100% { transform: scale(1); opacity: 0.6; }
-      50% { transform: scale(1.2); opacity: 0.3; }
+    @keyframes float-slow {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(30px, -30px) scale(1.1); }
+      66% { transform: translate(-20px, 20px) scale(0.9); }
     }
-    .animate-pulse-slow {
-      animation: pulse-slow 8s ease-in-out infinite;
+    @keyframes float-slower {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(-40px, -40px) scale(1.15); }
+    }
+    @keyframes float-reverse {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(40px, 30px) scale(0.85); }
+    }
+    @keyframes gradient-x {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    @keyframes fade-in {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Scrollbar styling */
+    .animate-float-slow { animation: float-slow 20s ease-in-out infinite; }
+    .animate-float-slower { animation: float-slower 25s ease-in-out infinite; }
+    .animate-float-reverse { animation: float-reverse 18s ease-in-out infinite; }
+    .animate-gradient-x { 
+      background-size: 200% 200%;
+      animation: gradient-x 3s ease infinite;
+    }
+    .animate-fade-in { animation: fade-in 0.5s ease-out; }
+
+    /* Enhanced Scrollbar */
     #scoreboardList {
       scrollbar-width: thin;
-      scrollbar-color: #a78bfa #f3e8ff;
+      scrollbar-color: rgba(168, 85, 247, 0.4) rgba(255, 255, 255, 0.05);
     }
     #scoreboardList::-webkit-scrollbar {
       width: 6px;
     }
     #scoreboardList::-webkit-scrollbar-thumb {
-      background-color: #a78bfa;
-      border-radius: 3px;
+      background: linear-gradient(180deg, rgba(168, 85, 247, 0.6), rgba(236, 72, 153, 0.6));
+      border-radius: 10px;
     }
     #scoreboardList::-webkit-scrollbar-track {
-      background: #f3e8ff;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
     }
   </style>
 
@@ -124,13 +242,21 @@ auth.onAuthStateChanged(async (user)=>{
   const userRef = db.collection("users").doc(currentUser.uid);
   const doc = await userRef.get();
   if(!doc.exists){
-    await userRef.set({ email: currentUser.email, score: 0 });
+    await userRef.set({ 
+      email: currentUser.email, 
+      score: 0,
+      askedCount: 0,
+      correctCount: 0,
+      fastestCorrectCount: 0,
+      wrongCount: 0
+    });
   }
 
   document.getElementById("askSection").classList.remove("hidden");
 
   startQuestionListener();
   displayScores();
+  updateUserStats();
 });
 
 // ------------------ ASK QUESTION ------------------
@@ -158,7 +284,7 @@ function startQuestionListener(){
     if(snapshot.empty){
       document.getElementById("askSection").classList.remove("hidden");
       document.getElementById("quizSection").classList.add("hidden");
-      document.getElementById("fastestUserDisplay").innerText = "";
+      document.getElementById("fastestUserDisplay").innerHTML = "";
       return;
     }
 
@@ -189,9 +315,14 @@ function startQuestionListener(){
       if(fastestUser){
         const userSnap = await db.collection("users").doc(fastestUser).get();
         const email = userSnap.exists ? userSnap.data().email : "Someone";
-        document.getElementById("fastestUserDisplay").innerText = `Answering: ${email}`;
+        document.getElementById("fastestUserDisplay").innerHTML = `
+          <span class="inline-flex items-center gap-2 px-4 py-2 bg-yellow-500/20 border border-yellow-500/30 rounded-full text-yellow-300 font-semibold text-sm backdrop-blur-sm">
+            <span class="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></span>
+            ${email} is answering...
+          </span>
+        `;
       } else {
-        document.getElementById("fastestUserDisplay").innerText = "";
+        document.getElementById("fastestUserDisplay").innerHTML = "";
       }
 
       if(fastestUser !== currentUser.uid){
@@ -219,7 +350,12 @@ document.getElementById("answerBtn").addEventListener("click", async ()=>{
   });
 
   document.getElementById("answerInputSection").classList.remove("hidden");
-  document.getElementById("fastestUserDisplay").innerText = `Answering: ${currentUser.email}`;
+  document.getElementById("fastestUserDisplay").innerHTML = `
+    <span class="inline-flex items-center gap-2 px-4 py-2 bg-yellow-500/20 border border-yellow-500/30 rounded-full text-yellow-300 font-semibold text-sm backdrop-blur-sm">
+      <span class="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></span>
+      ${currentUser.email} is answering...
+    </span>
+  `;
   document.getElementById("answerBtn").style.display = "none";
 });
 
@@ -241,33 +377,56 @@ document.getElementById("submitAnswerBtn").addEventListener("click", async ()=>{
 document.getElementById("markRight").addEventListener("click", async ()=>{
   const questionData = currentQuestionDoc.data();
   if(questionData.answeredBy){
-    await db.collection("users").doc(questionData.answeredBy).update({
-      score: firebase.firestore.FieldValue.increment(10)
+    const answeredByRef = db.collection("users").doc(questionData.answeredBy);
+
+    await answeredByRef.update({
+      score: firebase.firestore.FieldValue.increment(10),
+      correctCount: firebase.firestore.FieldValue.increment(1),
+      fastestCorrectCount: questionData.fastestClickedBy === questionData.answeredBy
+        ? firebase.firestore.FieldValue.increment(1)
+        : firebase.firestore.FieldValue.increment(0)
     });
   }
+
+  if(questionData.askedBy){
+    await db.collection("users").doc(questionData.askedBy).update({
+      askedCount: firebase.firestore.FieldValue.increment(1)
+    });
+  }
+
   await db.collection("questions").doc(currentQuestionDoc.id).delete();
   resetAfterJudging();
+  updateUserStats();
 });
 
 document.getElementById("markWrong").addEventListener("click", async ()=>{
   const questionData = currentQuestionDoc.data();
   if(questionData.answeredBy){
     await db.collection("users").doc(questionData.answeredBy).update({
-      score: firebase.firestore.FieldValue.increment(-10)
+      score: firebase.firestore.FieldValue.increment(-10),
+      wrongCount: firebase.firestore.FieldValue.increment(1)
     });
   }
+
+  if(questionData.askedBy){
+    await db.collection("users").doc(questionData.askedBy).update({
+      askedCount: firebase.firestore.FieldValue.increment(1)
+    });
+  }
+
   await db.collection("questions").doc(currentQuestionDoc.id).delete();
   resetAfterJudging();
+  updateUserStats();
 });
 
 function resetAfterJudging(){
   document.getElementById("judgeSection").classList.add("hidden");
   document.getElementById("askSection").classList.remove("hidden");
-  document.getElementById("fastestUserDisplay").innerText = "";
+  document.getElementById("fastestUserDisplay").innerHTML = "";
   document.getElementById("quizSection").classList.add("hidden");
 }
 
-// ------------------ MODERN SCOREBOARD ------------------
+// ------------------ ENHANCED SCOREBOARD ------------------
 async function displayScores(){
   const usersSnap = await db.collection("users").get();
   const list = document.getElementById("scoreboardList");
@@ -277,30 +436,56 @@ async function displayScores(){
   usersSnap.forEach(doc => users.push({ ...doc.data(), uid: doc.id }));
   users.sort((a,b) => (b.score || 0) - (a.score || 0));
 
-  const colors = [
-    "from-yellow-200 via-yellow-300 to-yellow-400",
-    "from-slate-200 via-slate-300 to-slate-400",
-    "from-amber-200 via-amber-300 to-amber-400"
-  ];
-
   users.forEach((user, index) => {
     const li = document.createElement("li");
-    li.className = `flex justify-between items-center p-3 rounded-xl shadow-md bg-gradient-to-r ${colors[index] || "from-purple-100 via-pink-100 to-red-100"} mb-2`;
+    
+    let bgClass = "from-white/10 to-white/5";
+    let borderClass = "border-white/20";
+    let rankIcon = "";
+    
+    if(index === 0) {
+      bgClass = "from-yellow-500/20 to-amber-500/10";
+      borderClass = "border-yellow-500/40";
+      rankIcon = "🥇";
+    } else if(index === 1) {
+      bgClass = "from-slate-400/20 to-slate-500/10";
+      borderClass = "border-slate-400/40";
+      rankIcon = "🥈";
+    } else if(index === 2) {
+      bgClass = "from-orange-600/20 to-amber-700/10";
+      borderClass = "border-orange-500/40";
+      rankIcon = "🥉";
+    }
+
+    li.className = `flex justify-between items-center p-4 rounded-xl bg-gradient-to-r ${bgClass} border ${borderClass} backdrop-blur-sm hover:scale-[1.02] transition-all duration-300 shadow-lg group`;
 
     li.innerHTML = `
-      <div class="flex items-center gap-3">
-        <span class="text-lg font-bold">${index + 1}.</span>
-        <span class="font-medium text-gray-800">${user.email}</span>
+      <div class="flex items-center gap-3 flex-1 min-w-0">
+        <span class="text-xl font-black text-white/80 w-8 text-center flex-shrink-0">${rankIcon || `${index + 1}.`}</span>
+        <span class="font-semibold text-white truncate group-hover:text-white/90 transition-colors">${user.email}</span>
       </div>
-      <div class="text-lg font-bold text-purple-700">${user.score || 0}</div>
+      <div class="text-2xl font-black bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent flex-shrink-0 ml-2">${user.score || 0}</div>
     `;
     list.appendChild(li);
   });
 }
 
 setInterval(displayScores, 3000);
+
+// ------------------ USER STATS ------------------
+async function updateUserStats(){
+  const userSnap = await db.collection("users").doc(currentUser.uid).get();
+  if(!userSnap.exists) return;
+
+  const data = userSnap.data();
+  document.getElementById("askedCount").innerText = data.askedCount || 0;
+  document.getElementById("correctCount").innerText = data.correctCount || 0;
+  document.getElementById("fastestCorrectCount").innerText = data.fastestCorrectCount || 0;
+  document.getElementById("wrongCount").innerText = data.wrongCount || 0;
+
+  document.getElementById("userStats").classList.remove("hidden");
+}
 </script>
 
 </body>
 </html>
-
